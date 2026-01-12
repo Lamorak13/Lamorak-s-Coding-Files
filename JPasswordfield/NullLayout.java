@@ -1,5 +1,5 @@
 /*
- AUTHOR Lamorak13
+ AUTHOR Lamorak13 (TEST TEST TEST)
  DATE STARTED: 4/15/2025
  DATE COMPILED: 4/15/2025
  DESCRIPTION: Java JPasswordField showcase, but this time modified with a JCheckBox w ActionListener for toggle password transparency
