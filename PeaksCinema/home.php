@@ -229,8 +229,8 @@ $coming_soon_results = getAvailableMovies($conn, 'Coming Soon');
     .tab-content.active { display: block; }
 
     footer {
-      background-color: #151515;
-      color: #888;
+      background-color: #1F1F1F;
+      color: #F9F9F9;
       text-align: center;
       padding: 30px 20px;
       margin-top: auto;
