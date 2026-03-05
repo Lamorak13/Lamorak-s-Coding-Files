@@ -21,16 +21,16 @@
         border: 3px solid black;
         border-radius: 25px;
         padding: 5px;
-        font-weight: bold;
         font-size: 80%;
+        font-weight: bold;
         color: black;
         transition: border 0.5s, padding 0.5s, color 0.5s;
     }
 
     button.addTimeButton:hover {
         border: 3px solid rgb(18, 141, 172);
-        padding: 8px;
-        color: rgb(18, 141, 172);        
+        padding: 7px;
+        color: black;        
     }
 
     button.addTimeButton:active {
@@ -39,9 +39,10 @@
     </style>
     <body>
         <main>
-            
-            <button type="button" class="timeButton" id="1">10:00 AM</button>
-            <button type="button" class="addTimeButton">Add Time</button>
+            <span id="dayRow"><button type="button" class="timeButton" id="1">10:00 AM</button></span>
+            <span>
+                <button type="button" class="addTimeButton">+</button>
+            </span>
         </main>
         <script>
             const timeButtons = document.querySelectorAll('.timeButton');
@@ -52,11 +53,11 @@
                 })
             })
 
-
+            const dayRow = document.getElementById("dayRow");
             const addTimeButtons = document.querySelectorAll('.addTimeButton');
             addTimeButtons.forEach(e => {
                 e.addEventListener("click", function() {
-                    e.innerHTML = <div>hi</div>;
+                    dayRow.innerHTML += '<input type="time"> </input>';
                 })
             })
             
