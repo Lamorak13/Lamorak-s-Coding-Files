@@ -7,7 +7,7 @@
     }
 
     // empty variables for later use
-    $MovieName = $MovieDescription = $Genre = $Rating = $Runtime = $MoviePoster = $MovieAvailability = "";
+    $MovieName = $MovieDescription = $Genre = $Rating = $Runtime = $MoviePoster = $MovieAvailability = $TrailerUrl = "";
 
 
     // kung nagsubmit nung admin nung form tapos nandun rin nung poster
@@ -20,16 +20,17 @@
         }
 
         // prepared statement for later use
-        $stmt = $conn -> prepare("INSERT INTO movie(MovieName, MovieDescription, Genre, Rating, Runtime, MoviePoster, MovieAvailability)
-                                  VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $stmt -> bind_param("ssssiss", $MovieName, $MovieDescription, $Genre, $Rating, $Runtime, $MoviePoster, $MovieAvailability);
+        $stmt = $conn -> prepare("INSERT INTO movie(MovieName, MovieDescription, Genre, Rating, Runtime, MoviePoster, MovieAvailability, TrailerUrl)
+                                  VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt -> bind_param("ssssisss", $MovieName, $MovieDescription, $Genre, $Rating, $Runtime, $MoviePoster, $MovieAvailability, $TrailerUrl);
         
         // more input cleanup yayyyyy
         $MovieName = input_cleanup($_POST['movieName']);
         $MovieDescription = input_cleanup($_POST['movieDesc']);
         $Genre = input_cleanup($_POST['movieGenre']);
         $Rating = input_cleanup($_POST['movieRating']);
-        $Runtime = input_cleanup($_POST['movieRuntime']);        
+        $Runtime = input_cleanup($_POST['movieRuntime']);
+        $TrailerUrl = input_cleanup($_POST['TrailerUrl']);
 
         // this makes a "path" to the uploaded file
         $temp = $_FILES['moviePosterUp']['tmp_name'];
@@ -152,6 +153,12 @@
                             <option value = "Now Showing">Now Showing</option>
                             <option value = "Coming Soon">Coming Soon</option>
                         </select>
+                    </div>
+                    <br>
+
+                    <div>
+                        <label for="TrailerUrl">Movie Genre: </label><br>
+                        <input type="text" id="TrailerUrl" name="TrailerUrl" placeholder="Trailer Link" required>
                     </div>
                     <br>
 
