@@ -157,7 +157,7 @@
                     <br>
 
                     <div>
-                        <label for="TrailerUrl">Movie Genre: </label><br>
+                        <label for="TrailerUrl">Trailer URL: </label><br>
                         <input type="text" id="TrailerUrl" name="TrailerUrl" placeholder="Trailer Link" required>
                     </div>
                     <br>

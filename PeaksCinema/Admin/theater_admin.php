@@ -1,3 +1,4 @@
+theater_admin.php
 <?php 
     include("peakscinemas_database.php");
     
@@ -8,15 +9,18 @@
 
     if ($Mall_ID && $Theater_ID) {
         $stmt = $conn -> prepare("SELECT * FROM mall WHERE Mall_ID = ?");
-        $stmt -> execute([$Mall_ID]);
+        $stmt -> bind_param("i", $Mall_ID);
+        $stmt -> execute();
         $mallDetails = ($stmt -> get_result()) -> fetch_assoc();
 
         $theater_stmt = $conn -> prepare("SELECT * FROM theater WHERE Theater_ID = ?");
-        $theater_stmt -> execute([$Theater_ID]);
+        $theater_stmt -> bind_param("i", $Theater_ID);        
+        $theater_stmt -> execute();
         $theaterDetails = $theater_stmt -> get_result() -> fetch_assoc();
 
-        $seats_stmt = $conn -> prepare("SELECT * FROM seats WHERE Theater_ID = ?");
-        $seats_stmt -> execute([$Theater_ID]);
+        $seats_stmt = $conn -> prepare("SELECT * FROM seats WHERE Theater_ID = ? AND TimeSlot_ID IS null");
+        $seats_stmt -> bind_param("i", $Theater_ID);
+        $seats_stmt -> execute();
         $seatLayout = $seats_stmt -> get_result();
 
         if ($seatLayout) {
@@ -28,6 +32,11 @@
                 $layoutProper[$rows][] = $seat;
             }
         }
+
+        $seatTypes_stmt = $conn -> prepare("SELECT DISTINCT SeatType FROM seats WHERE Theater_ID = ? AND SeatType != 'Empty' ");
+        $seatTypes_stmt -> bind_param("i", $Theater_ID);
+        $seatTypes_stmt -> execute();
+        $seatTypesResult = $seatTypes_stmt -> get_result();
     }
 
     if($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -49,6 +58,27 @@
                                   VALUES (?, ?, ?, ?, ?)");
         $stmt -> bind_param("sssii", $StartTime, $Date, $ScreeningType, $Movie_ID, $Theater_ID);
         $stmt -> execute();
+        $TimeSlot_ID = $conn -> insert_id;
+
+        $SeatPrice = input_cleanup($_POST['seatPrice']);
+
+        $seats_stmt = $conn -> prepare("SELECT * FROM seats WHERE Theater_ID = ? AND TimeSlot_ID IS null");
+        $seats_stmt -> bind_param("i", $Theater_ID);
+        $seats_stmt -> execute();
+        $seatLayout = $seats_stmt -> get_result();
+
+        $SeatAvailability = 1;
+        while ($seat = $seatLayout -> fetch_assoc()) {
+            $SeatRow = $seat['SeatRow'];
+            $SeatColumn = $seat['SeatColumn'];
+            $SeatType = $seat['SeatType'];
+
+            $screeningSeatsToDb_stmt = $conn -> prepare("INSERT INTO seats(SeatRow, SeatColumn, SeatType, SeatPrice, SeatAvailability, Theater_ID, TimeSlot_ID)
+                                                         VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $screeningSeatsToDb_stmt -> bind_param("sisiiii", $SeatRow, $SeatColumn, $SeatType, $SeatPrice, $SeatAvailability, $Theater_ID, $TimeSlot_ID);
+            $screeningSeatsToDb_stmt -> execute();
+        }
+
     }
 
     mysqli_close($conn);
@@ -58,6 +88,53 @@
 <html>
     <head>
         <style>
+            body {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                min-height: 100vh;
+                margin: 0;      
+                background: linear-gradient(90deg,rgba(106, 127, 63, 1) 0%, rgba(74, 106, 90, 1) 100%);
+                padding-top: 150px;
+            }
+
+            header {
+                border: 4px solid black;
+                border-bottom: none;
+                border-top-left-radius: 25px;
+                border-top-right-radius: 25px;
+                background: rgba(255, 255, 255, 0.8);
+                overflow: hidden;
+                padding: 0px;
+            }
+
+            nav {
+                display: flex;
+            }
+
+            a {
+                padding: 5px 10px;
+                text-decoration: none;
+                border-radius: 10px 10px 0 0;
+                border-bottom: none;
+                color: black;
+            }
+
+            a:hover {
+                background: rgba(70, 58, 58, 0.8);
+                color: white;
+            }
+
+            main {
+                display: flex;
+                flex-direction: column;
+                border: 4px solid black;
+                border-radius: 50px;
+                overflow: hidden;
+                background: rgba(255, 255, 255, 0.8);
+                padding: 20px;
+            }
+
             #theaterInformation {
                 display: flex;
                 align-items: stretch;
@@ -100,6 +177,11 @@
                 background-color: transparent;
                 border: 1px solid transparent;
             }
+
+            input, textarea, select, button {
+                border-radius: 15px;
+                padding: 5px;
+            }
         </style>
     </head>
     <body>
@@ -113,7 +195,7 @@
             </nav>            
         </header>
         <main>
-            <div> <?= htmlspecialchars($mallDetails['MallName']) ?> - <?= htmlspecialchars($theaterDetails['TheaterName']) ?> </div>
+            <div><strong><?= htmlspecialchars($mallDetails['MallName']) ?> - <?= htmlspecialchars($theaterDetails['TheaterName']) ?></strong></div>
             
             <div id = "theaterInformation">
                 <section id = "theaterLayoutSection">
@@ -171,9 +253,12 @@
                                 <option value = "2D">2D</option>
                                 <option value = "3D">3D</option>
                             </select>
+                        </div><br>
+                        <div>
+                            <label for="seatPrice">Seat Price (In Pesos): </label>
+                            <input type="number" id="seatPrice" name="seatPrice" required>
                         </div>
                         <input type="hidden" name="theater_id" id="theater_id" value="<?= htmlspecialchars($Theater_ID) ?>">
-
                         <div>
                             <button type="submit" name="screeningDetails" value="screeningDetails">Upload</button>
                         </div>
