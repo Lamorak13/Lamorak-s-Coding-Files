@@ -179,6 +179,8 @@ $coming_soon_results = getAvailableMovies($conn, 'Coming Soon');
       padding: 10px;
       text-align: center;
       transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
     }
 
     .movie-card:hover {
@@ -186,14 +188,31 @@ $coming_soon_results = getAvailableMovies($conn, 'Coming Soon');
       transform: translateY(-5px);
     }
 
+<<<<<<< Updated upstream
     .movie-card img {
+=======
+    /* ── Poster Wrapper & Hover Overlay ── */
+    .movie-poster-wrapper {
+      position: relative;
+      overflow: hidden;
+      border-radius: 6px;
+      cursor: pointer;
       width: 100%;
-      height: 260px;
+      padding-top: 148%;
+    }
+
+    .movie-poster-wrapper img {
+      position: absolute;
+      top: 0; left: 0;
+>>>>>>> Stashed changes
+      width: 100%;
+      height: 100%;
       object-fit: cover;
       border-radius: 6px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     }
 
+<<<<<<< Updated upstream
     .movie-title {
       margin: 10px 0 8px;
       font-weight: 600;
@@ -203,6 +222,141 @@ $coming_soon_results = getAvailableMovies($conn, 'Coming Soon');
       align-items: center;
       justify-content: center;
       line-height: 1.3;
+=======
+    .movie-hover-overlay {
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 100%; height: 100%;
+      background: linear-gradient(
+        to top,
+        rgba(0,0,0,0.95) 50%,
+        rgba(0,0,0,0.3) 100%
+      );
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 15px;
+      box-sizing: border-box;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .movie-poster-wrapper:hover .movie-hover-overlay {
+      opacity: 1;
+    }
+
+    .movie-poster-wrapper:hover img {
+      transform: scale(1.05);
+      filter: brightness(0.6);
+    }
+
+    .overlay-rating-badge {
+      background: #f5a623;
+      color: black;
+      font-weight: bold;
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      width: fit-content;
+      margin-bottom: 5px;
+    }
+
+    .overlay-genre,
+    .overlay-runtime {
+      margin: 2px 0;
+      font-size: 11px;
+      color: #ccc;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .overlay-price {
+      font-size: 13px;
+      font-weight: bold;
+      color: #ff4444;
+      margin: 4px 0;
+    }
+
+    .trailer-btn {
+      margin-top: 6px;
+      margin-left: auto;
+      margin-right: auto;
+      background: #ff4d4d;
+      border: 2px solid #ff4d4d;
+      color: white;
+      padding: 5px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 11px;
+      font-family: 'Outfit', sans-serif;
+      transition: background 0.2s ease, border-color 0.2s ease;
+      width: fit-content;
+      display: block;
+    }
+
+    .trailer-btn:hover {
+      background: #ff4d4d;
+      border-color: #ff4d4d;
+      transform: scale(1.05);
+      transition: opacity 0.3s ease;
+    }
+
+    /* ── Trailer Modal ── */
+    .trailer-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.85);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .trailer-modal.active {
+      display: flex;
+    }
+
+    .trailer-modal-content {
+      position: relative;
+      width: 80%;
+      height: 500px;
+      background: #000;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .close-modal {
+      position: absolute;
+      top: 10px; right: 15px;
+      color: white;
+      font-size: 22px;
+      cursor: pointer;
+      z-index: 10;
+      background: rgba(0,0,0,0.6);
+      padding: 2px 9px;
+      border-radius: 50%;
+    }
+
+    /* ── Movie Title ── */
+    .movie-title {
+      margin: 10px 0 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.3;
+      min-height: 2.6em;
+      text-align: center;
+      color: #F9F9F9;
+      letter-spacing: 0.3px;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+      flex: 1;
+>>>>>>> Stashed changes
     }
 
     .buy-btn {
@@ -217,6 +371,7 @@ $coming_soon_results = getAvailableMovies($conn, 'Coming Soon');
       font-weight: 700;
       font-size: 0.85rem;
       width: 100%;
+      margin-top: auto;
     }
 
     .buy-btn:hover {
@@ -274,8 +429,34 @@ $coming_soon_results = getAvailableMovies($conn, 'Coming Soon');
       <div id="now-showing" class="tab-content active">
         <div class="movies-container">
           <?php while ($row = $now_showing_results->fetch_assoc()): ?>
+<<<<<<< Updated upstream
             <div class="movie-card">
               <img src="/<?= htmlspecialchars($row['MoviePoster']) ?>" alt="<?= htmlspecialchars($row['MovieName']) ?>">
+=======
+            <div class="movie-card" tabindex="0"
+                 onkeydown="if(event.key==='Enter' || event.key===' '){ event.preventDefault(); this.querySelector('.buy-btn').click(); }">
+              <div class="movie-poster-wrapper">
+                <img src="/<?= htmlspecialchars($row['MoviePoster']) ?>" alt="<?= htmlspecialchars($row['MovieName']) ?>">
+                <div class="movie-hover-overlay">
+                  <?php if (!empty($row['Rating'])): ?>
+                    <span class="overlay-rating-badge"><?= htmlspecialchars($row['Rating']) ?></span>
+                  <?php endif; ?>
+                  <?php if (!empty($row['Genre'])): ?>
+                    <p class="overlay-genre">🎬 <?= htmlspecialchars($row['Genre']) ?></p>
+                  <?php endif; ?>
+                  <?php if (!empty($row['Runtime'])): ?>
+                    <p class="overlay-runtime">⏱ <?= htmlspecialchars($row['Runtime']) ?> mins</p>
+                  <?php endif; ?>
+                  <?php if (!empty($row['Price'])): ?>
+                    <p class="overlay-price">From ₱<?= number_format($row['Price'], 2) ?></p>
+                  <?php endif; ?>
+                  <button class="trailer-btn"
+                          onclick="event.stopPropagation(); <?= !empty($row['TrailerURL']) ? "playTrailer('" . htmlspecialchars($row['TrailerURL']) . "')" : "" ?>">
+                    ▶ Play Trailer
+                  </button>
+                </div>
+              </div>
+>>>>>>> Stashed changes
               <div class="movie-title"><?= htmlspecialchars($row['MovieName']) ?></div>
               <button class="buy-btn" data-id="<?= htmlspecialchars($row['Movie_ID']) ?>">Buy Tickets</button>
             </div>
@@ -286,8 +467,31 @@ $coming_soon_results = getAvailableMovies($conn, 'Coming Soon');
       <div id="coming-soon" class="tab-content">
         <div class="movies-container">
           <?php while ($row = $coming_soon_results->fetch_assoc()): ?>
+<<<<<<< Updated upstream
             <div class="movie-card">
               <img src="/<?= htmlspecialchars($row['MoviePoster']) ?>" alt="<?= htmlspecialchars($row['MovieName']) ?>">
+=======
+            <div class="movie-card" tabindex="0"
+                 onkeydown="if(event.key==='Enter' || event.key===' '){ event.preventDefault(); this.querySelector('.buy-btn').click(); }">
+              <div class="movie-poster-wrapper">
+                <img src="/<?= htmlspecialchars($row['MoviePoster']) ?>" alt="<?= htmlspecialchars($row['MovieName']) ?>">
+                <div class="movie-hover-overlay">
+                  <?php if (!empty($row['Rating'])): ?>
+                    <span class="overlay-rating-badge"><?= htmlspecialchars($row['Rating']) ?></span>
+                  <?php endif; ?>
+                  <?php if (!empty($row['Genre'])): ?>
+                    <p class="overlay-genre">🎬 <?= htmlspecialchars($row['Genre']) ?></p>
+                  <?php endif; ?>
+                  <?php if (!empty($row['Runtime'])): ?>
+                    <p class="overlay-runtime">⏱ <?= htmlspecialchars($row['Runtime']) ?> mins</p>
+                  <?php endif; ?>
+                  <button class="trailer-btn"
+                          onclick="event.stopPropagation(); <?= !empty($row['TrailerURL']) ? "playTrailer('" . htmlspecialchars($row['TrailerURL']) . "')" : "" ?>">
+                    ▶ Play Trailer
+                  </button>
+                </div>
+              </div>
+>>>>>>> Stashed changes
               <div class="movie-title"><?= htmlspecialchars($row['MovieName']) ?></div>
               <button class="buy-btn" data-id="<?= htmlspecialchars($row['Movie_ID']) ?>">Details</button>
             </div>
