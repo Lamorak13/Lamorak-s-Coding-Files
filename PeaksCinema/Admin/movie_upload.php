@@ -14,43 +14,49 @@
     if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["moviePosterUp"])) {
         // input cleanup func for later use   
         function input_cleanup($data) {
-        $data = trim($data);
-        $data = stripslashes($data);
-        return $data;
+            $data = trim($data);
+            $data = stripslashes($data);
+            return $data;
         }
 
         // prepared statement for later use
-        $stmt = $conn -> prepare("INSERT INTO movie(MovieName, MovieDescription, Genre, Rating, Runtime, MoviePoster, MovieAvailability, TrailerUrl)
+        $stmt = $conn -> prepare("INSERT INTO movie(MovieName, MovieDescription, Genre, Rating, Runtime, MoviePoster, MovieAvailability, TrailerURL)
                                   VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt -> bind_param("ssssisss", $MovieName, $MovieDescription, $Genre, $Rating, $Runtime, $MoviePoster, $MovieAvailability, $TrailerUrl);
+        $stmt -> bind_param("ssssisss", $MovieName, $MovieDescription, $Genre, $Rating, $Runtime, $MoviePoster, $MovieAvailability, $TrailerURL);
         
-        // more input cleanup yayyyyy
+        // more input cleanup
         $MovieName = input_cleanup($_POST['movieName']);
         $MovieDescription = input_cleanup($_POST['movieDesc']);
         $Genre = input_cleanup($_POST['movieGenre']);
         $Rating = input_cleanup($_POST['movieRating']);
         $Runtime = input_cleanup($_POST['movieRuntime']);
-        $TrailerUrl = input_cleanup($_POST['TrailerUrl']);
+        $TrailerURL = input_cleanup($_POST['TrailerURL']);
 
         // this makes a "path" to the uploaded file
         $temp = $_FILES['moviePosterUp']['tmp_name'];
-        // this cuts off the file type from the image name. like usually file names are like "poster.png". this line of code gets just the png
+        // this cuts off the file type from the image name
         $fileType = pathinfo($_FILES['moviePosterUp']['name'], PATHINFO_EXTENSION);
-        // this basically renames the file to match the movie name. if the movie name is Superman, this line of code would make it Superman.png as the file name
-        $fileName = $MovieName . "." . $fileType;
-        // This then creates the path where the file will be created in
+
+        // FIXED: Remove characters that are invalid in Windows file paths
+        // Colons, slashes, asterisks, quotes, etc. cause upload to fail on Windows/XAMPP
+        $safeMovieName = preg_replace('/[\\\\\/:\*\?"<>\|]/', '', $MovieName);
+        $safeMovieName = trim($safeMovieName);
+
+        // rename the file to match the (sanitized) movie name
+        $fileName = $safeMovieName . "." . $fileType;
+        // create the full path where the file will be saved
         $endPath = $posterFolder . "/" . $fileName;
 
-        // This moves the temporary file to an actual folder, which is the end path
+        // Move the temporary file to the actual folder
         if (move_uploaded_file($temp, $endPath)) {
-            $MoviePoster = 'PeaksCinema/MoviePosters/' . $fileName; // If it successfully uploads the file, it creates a path to the file, and then sends that path to the database. if all goes well, it should show up on the actual website
+            $MoviePoster = 'PeaksCinema/MoviePosters/' . $fileName;
         } else {
             echo "There was an error with uploading the poster. Please try again. ";
         }
 
         $MovieAvailability = input_cleanup($_POST['movieAvailability']); 
 
-        // actual execution of the prepared statement with the new information
+        // actual execution of the prepared statement
         $stmt -> execute();
     }
 
@@ -91,7 +97,7 @@
             }
         </style>
     </head>
-    <body class = "movieUpload">
+    <body class="movieUpload">
         <header>
             <nav>
                 <a href="dashboard.php" target="_self">Dashboard</a>
@@ -103,7 +109,7 @@
         </header>
         <main>
             <section id="movieFormSection">
-                <form id = "movieDetails" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST" enctype="multipart/form-data" autocomplete="off">
+                <form id="movieDetails" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST" enctype="multipart/form-data" autocomplete="off">
                     <div>
                         <label for="movieName">Movie Name: </label>
                         <input type="text" id="movieName" name="movieName" placeholder="Movie Name" required>
@@ -149,16 +155,16 @@
 
                     <div>
                         <label for="movieAvailability">Movie Availability: </label>
-                        <select id = "movieAvailability" name = "movieAvailability" required>
-                            <option value = "Now Showing">Now Showing</option>
-                            <option value = "Coming Soon">Coming Soon</option>
+                        <select id="movieAvailability" name="movieAvailability" required>
+                            <option value="Now Showing">Now Showing</option>
+                            <option value="Coming Soon">Coming Soon</option>
                         </select>
                     </div>
                     <br>
 
                     <div>
-                        <label for="TrailerUrl">Trailer URL: </label><br>
-                        <input type="text" id="TrailerUrl" name="TrailerUrl" placeholder="Trailer Link" required>
+                        <label for="TrailerURL">Movie Trailer: </label><br>
+                        <input type="text" id="TrailerURL" name="TrailerURL" placeholder="Trailer Link" required>
                     </div>
                     <br>
 
@@ -173,7 +179,6 @@
             </section>                     
         </main>
         
-        <!-- javascript-->
         <script> 
             const moviePosterUp = document.getElementById("moviePosterUp");
             const posterPreview = document.getElementById("posterPreview");

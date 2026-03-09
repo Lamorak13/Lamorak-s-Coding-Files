@@ -83,8 +83,7 @@
             <div id="failed"></div>
             <section id="movieDetails"></section>
             <section id="dateSection">
-                <div id="theaterSelection">
-                </div>
+                <div id="theaterSelection"></div>
                 <div id="everythingAboutDates">
                     <div id="allDatesContainer"></div>
                     <div>
