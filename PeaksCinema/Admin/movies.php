@@ -14,7 +14,7 @@
         main {
             position: relative;
             margin: 30px auto;
-            width: 100%;
+            width: 90%;
             height: 100%;
             padding: 30px 20px;
             backdrop-filter: blur(3px);

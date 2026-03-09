@@ -4,6 +4,7 @@
     
     main {
         display: flex;
+        background-color: white;
     }
 
     #movieDetails {
@@ -70,12 +71,6 @@
         display: none;
     }
 
-    #failed {
-        display: none;
-        width:100%;
-        height:100%;
-    }
-
     </style>
     <body onload="getMovieInfo()">
         <?php include("header_admin.php"); ?>
@@ -93,7 +88,10 @@
                             
                             <input type="radio" class="dateTypeSelection" name="dateTypeSelection" value="0" onclick="dateTypeSelection()">Add timeslots for all days</input>
                             <input type="radio" class="dateTypeSelection" name="dateTypeSelection" value="1" onclick="dateTypeSelection()">Add timeslots for specific days</input><br>
-                            <div id="allTimeslotsContainer" class="timeslotContainer"><input type="time" class="timeslots"></div>
+                            <div id="allTimeslotsContainer" class="timeslotContainer">
+                                <input type="time" class="timeslots" onchange="addTimeslot()">
+                            </div><div id="maxNumberForAll"></div>
+                            
                             <div id="dayTimeslotsContainer" class="timeslotContainer">hello</div>
 
                             <input type="button" id="saveDateButton" value="Save"></input>
@@ -188,6 +186,17 @@
                         dayTimeslotsContainer.style.display = 'block';
                     }
                 }
+            }
+            const maxNumberForAll = document.getElementById('maxNumberForAll');
+            let addedTimes = 1 ;
+            function addTimeslot() {
+                if (addedTimes != 5 || addedTimes < 5) {
+                    allTimeslotsContainer.insertAdjacentHTML('beforeend','<input type="time" class="timeslots" onchange="addTimeslot()">');
+                    addedTimes += 1;
+                } else {
+                    maxNumberForAll.innerHTML = "Maximum amount of timeslots reached.";
+                }
+                
             }
             
         </script>
