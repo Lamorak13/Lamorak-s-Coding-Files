@@ -5,6 +5,7 @@
     main {
         display: flex;
         background-color: white;
+        height: 100vh;
     }
 
     #movieDetails {
@@ -84,17 +85,20 @@
                     <div>
                         <span><button type="button" id="addDateButton">Add New Date +</button></span>
                         <div id="addDateMenu">
-                            <p>Start Date: <input type="date" id="startDate"> - End Date: <input type="date" id="endDate"><span style="color: grey;">(optional)</span></p>
-                            
                             <input type="radio" class="dateTypeSelection" name="dateTypeSelection" value="0" onclick="dateTypeSelection()">Add timeslots for all days</input>
                             <input type="radio" class="dateTypeSelection" name="dateTypeSelection" value="1" onclick="dateTypeSelection()">Add timeslots for specific days</input><br>
                             <div id="allTimeslotsContainer" class="timeslotContainer">
-                                <input type="time" class="timeslots" onchange="addTimeslot()">
-                            </div><div id="maxNumberForAll"></div>
+                                <form id="timeslotAllForm">
+                                    <p>Start Date: <input type="date" id="startDate"> - End Date: <input type="date" id="endDate"><span style="color: grey;">(optional)</span></p>
+                                    <div>Timeslots: </div>
+                                    <span id="allTimeslots"><input type="time" class="timeslots" name="timeslotALL"onchange="addTimeslot()"></span>
+                                    <input type="submit" id="saveDateButton" value="Save"></input>
+                                </form>
+                                <div id="maxNumberForAll"></div>
+                            </div>
                             
                             <div id="dayTimeslotsContainer" class="timeslotContainer">hello</div>
 
-                            <input type="button" id="saveDateButton" value="Save"></input>
                         </div>
                     </div>
                 </div>
@@ -187,17 +191,31 @@
                     }
                 }
             }
+            const allTimeslots = document.getElementById('allTimeslots');
             const maxNumberForAll = document.getElementById('maxNumberForAll');
-            let addedTimes = 1 ;
+            let addedTimes = 0 ;
             function addTimeslot() {
-                if (addedTimes != 5 || addedTimes < 5) {
-                    allTimeslotsContainer.insertAdjacentHTML('beforeend','<input type="time" class="timeslots" onchange="addTimeslot()">');
+                if (addedTimes < 4) {
+                    const timeslot = document.createElement('input');
+                    timeslot.type = 'time';
+                    timeslot.name = 'timeslotALL';
+                    timeslot.addEventListener("change", addTimeslot);
+                    allTimeslots.appendChild(timeslot);
                     addedTimes += 1;
                 } else {
                     maxNumberForAll.innerHTML = "Maximum amount of timeslots reached.";
-                }
-                
+                }                
             }
+            const form = document.getElementById('timeslotAllForm');
+            form.addEventListener("submit", function(e) {
+                e.preventDefault();
+
+                const formData = new FormData(form);
+                let timeslots = formData.getAll('timeslotALL');
+                timeslots = timeslots.filter(t => t !== "");
+
+                console.log(timeslots);
+            })
             
         </script>
     </body>
