@@ -147,7 +147,7 @@
 
                         <div>
                             <label for="TrailerUrl">Trailer URL: </label><br>
-                            <input type="text" id="TrailerUrl" name="TrailerURL" placeholder="Trailer Link" required>
+                            <input type="text" id="TrailerURL" name="TrailerURL" placeholder="Trailer Link" required>
                         </div>
                         <br>
 

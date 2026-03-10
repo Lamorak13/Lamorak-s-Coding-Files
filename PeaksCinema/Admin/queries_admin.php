@@ -5,10 +5,10 @@
     $Movie_ID = filter_input(INPUT_GET, 'movie_id', FILTER_VALIDATE_INT);
 
     if ($q == 'movies') {
-        $stmt = $conn->prepare("SELECT DISTINCT daterange.DateRange_ID, daterange.Movie_ID, movie.MovieName, movie.MoviePoster
+        $stmt = $conn->prepare("SELECT DISTINCT movie.Movie_ID, movie.MovieName, movie.MoviePoster
                                 FROM daterange 
                                 INNER JOIN movie
-                                ON daterange.Movie_ID = movie.Movie_ID");
+                                ON movie.Movie_ID = daterange.Movie_ID");
         $stmt->execute();
         $result = $stmt->get_result();
 
@@ -52,10 +52,10 @@
     }
 
     if ($q == 'theaternames') {
-        $stmt = $conn->prepare("SELECT DISTINCT daterange.DateRange_ID, daterange.Theater_ID, theater.TheaterName
+        $stmt = $conn->prepare("SELECT DISTINCT theater.Theater_ID, daterange.Theater_ID, theater.TheaterName
                                 FROM daterange
                                 INNER JOIN theater
-                                ON daterange.Theater_ID = theater.Theater_ID");
+                                ON theater.Theater_ID = daterange.Theater_ID");
         $stmt->execute();
         $result = $stmt->get_result();
         
