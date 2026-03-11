@@ -52,17 +52,67 @@
     }
 
     if ($q == 'theaternames') {
-        $stmt = $conn->prepare("SELECT DISTINCT theater.Theater_ID, daterange.Theater_ID, theater.TheaterName
-                                FROM daterange
-                                INNER JOIN theater
-                                ON theater.Theater_ID = daterange.Theater_ID");
+        $stmt = $conn->prepare("SELECT DISTINCT theater.Theater_ID, theater.TheaterName
+                                FROM theater");
         $stmt->execute();
         $result = $stmt->get_result();
         
         while($row = $result->fetch_assoc()) {
-            echo '<input type="radio" class="theaterSelection" name="theaterSelection" value="', $row['Theater_ID'], '" onclick="theaterSelection()">', $row['TheaterName'], '</input>';
+            echo '<label>';
+            echo '<input type="radio" class="theaterSelection" name="theaterSelection" value="', $row['Theater_ID'], '" onclick="getTheaterInfo()">';
+            echo htmlspecialchars($row['TheaterName']);
+            echo '</label><br>';
         }
     }
-    
-    
+
+    if ($q == 'theaterdatetimes') {
+        $id = intval($_GET['id']);
+        $stmt = $conn->prepare("SELECT DISTINCT daterange.DateRange_ID, dateRange.StartDate, dateRange.EndDate
+                                FROM daterange
+                                INNER JOIN theater
+                                ON daterange.Theater_ID = theater.Theater_ID
+                                WHERE daterange.Theater_ID = ?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        while($row = $result->fetch_assoc()) {
+            echo '<div class="currentDates" id=' . $row['DateRange_ID'] . '>StartDate: ' . $row['StartDate'] . ' ' . ' - End Date: ', $row['EndDate'], '</div>';
+        }
+    }
+
+    if ($q == 'datetimesent') {
+        $data = json_decode(file_get_contents("php://input"), true);
+        
+        if ($data) {
+            $Theater_ID = $data['Theater_ID'];
+            $Movie_ID = $data['Movie_ID'];
+            $StartDate = $data['StartDate'];
+            $EndDate = $data['EndDate'];
+
+            $stmt = $conn->prepare("INSERT INTO daterange (Movie_ID, Theater_ID, StartDate, EndDate)
+                                    VALUES (?, ?, ?, ?)");
+            $stmt->bind_param("iiss", $Movie_ID, $Theater_ID, $StartDate, $EndDate);
+            $stmt->execute();
+
+            $DateRange_ID = $conn->insert_id;
+
+            $ScreeningType = "2D"; // TEMP
+
+            foreach ($data['timeslots'] as $timeslot) {
+                echo "hello";
+                $date = $timeslot['date'];
+                $time = $timeslot['timeslot'];
+
+                $stmt2 = $conn->prepare("INSERT INTO timeslot (StartTime, Date, ScreeningType, Movie_ID, Theater_ID, DateRange_ID)
+                                         VALUES (?, ?, ?, ?, ?, ?)");
+                $stmt2->bind_param("sssiii", $time, $date, $ScreeningType, $Movie_ID, $Theater_ID, $DateRange_ID);
+                $stmt2->execute();
+            }
+        }
+    }
+
+    if ($q == 'datedeletion') {
+        echo ("true");
+    }
 ?>

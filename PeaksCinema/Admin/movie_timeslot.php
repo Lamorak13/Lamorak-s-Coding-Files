@@ -72,6 +72,22 @@
         display: none;
     }
 
+    .currentDates {
+        display: inline-block;
+        border: 3px solid black;
+        border-radius: 15px;
+        padding: 5px;
+        margin-bottom: 5px;
+        transition: border 0.3s, color 0.3s, padding 0.3s, font-weight 0.1s;
+    }
+
+    .currentDates:hover {
+        border: 3px solid red;
+        color: red;
+        padding: 7px;
+        font-weight: bold;
+    }
+
     </style>
     <body onload="getMovieInfo()">
         <?php include("header_admin.php"); ?>
@@ -91,7 +107,7 @@
                                 <form id="timeslotAllForm">
                                     <p>Start Date: <input type="date" id="startDate"> - End Date: <input type="date" id="endDate"><span style="color: grey;">(optional)</span></p>
                                     <div>Timeslots: </div>
-                                    <span id="allTimeslots"><input type="time" class="timeslots" name="timeslotALL"onchange="addTimeslot()"></span>
+                                    <span id="allTimeslots"><input type="time" class="timeslots" name="timeslotALL"onchange="addTimeslot()"></span><br>
                                     <input type="submit" id="saveDateButton" value="Save"></input>
                                 </form>
                                 <div id="maxNumberForAll"></div>
@@ -172,8 +188,6 @@
                     addDateMenu.style.visibility = 'hidden';
                     isDateMenuOpen = false;
                     addDateButton.innerText = "Add New Date +";
-
-                    allDatesContainer.innerHTML += '<div class="dateContainer">Test</div>';
                 }                
             })
 
@@ -206,16 +220,78 @@
                     maxNumberForAll.innerHTML = "Maximum amount of timeslots reached.";
                 }                
             }
+
+            function getTheaterInfo() {
+                xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        allDatesContainer.innerHTML = this.responseText;
+                    }
+                };
+                xmlhttp.open("GET", "queries_admin.php?q=theaterdatetimes&id=" + 13)
+                xmlhttp.send();
+            }
+
             const form = document.getElementById('timeslotAllForm');
+            const startDate = document.getElementById('startDate');
+            const endDate = document.getElementById('endDate');
             form.addEventListener("submit", function(e) {
                 e.preventDefault();
 
-                const formData = new FormData(form);
-                let timeslots = formData.getAll('timeslotALL');
-                timeslots = timeslots.filter(t => t !== "");
+                var Movie_ID = urlParams.get('id');
+                var selectedTheater = document.querySelector('input[name="theaterSelection"]:checked').value;
 
-                console.log(timeslots);
+                const formData = new FormData(form);
+                let timeslots = formData.getAll('timeslotALL').filter(t => t !== "");
+
+                let allTimeslots = [];
+                let start = new Date(startDate.value);
+                if (!endDate.value) {
+                    let dateStr = start.toLocaleDateString('en-CA');
+                    timeslots.forEach(time => {
+                        allTimeslots.push({ date: dateStr, timeslot: time});
+                    });
+                } else {
+                    let end = new Date(endDate.value);
+                    for (var d = new Date(startDate.value); d <= end; d.setDate(d.getDate() + 1)) {
+                        let dateStr = new Date(d).toLocaleDateString('en-CA');
+                        timeslots.forEach(time => {
+                            allTimeslots.push({ date: dateStr, timeslot: time});
+                        });
+                    }
+                }
+                var xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        console.log(this.responseText);
+                    }
+                };
+                xmlhttp.open("POST", "queries_admin.php?q=datetimesent", true);
+                xmlhttp.setRequestHeader("Content-Type", "application/json");
+                xmlhttp.send(JSON.stringify({
+                    Theater_ID: selectedTheater,
+                    Movie_ID: Movie_ID,
+                    StartDate: startDate.value,
+                    EndDate: endDate.value,
+                    timeslots: allTimeslots
+                }));
+                console.log(allTimeslots);
             })
+
+            // const dates = document.querySelectorAll('.currentDates');
+            // dates.forEach(e => {
+            //     e.addEventListener("click", function() {                       
+            //         this.remove();
+            //         DateRange_ID = e.id;
+            //         xmlhttp = new XMLHttpRequest();
+            //         xmlhttp.onreadystatechange = function() {
+            //             if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {     
+            //             }
+            //         };
+            //         xmlhttp.open("POST", "queries_admin.php?q=datedeletion&id=" + DateRange_ID, true);
+            //         xmlhttp.send();
+            //     })
+            // })
             
         </script>
     </body>
